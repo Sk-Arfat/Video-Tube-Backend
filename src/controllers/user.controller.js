@@ -5,6 +5,8 @@ import uploadOnCloudinary from "../utils/cloudinary.js";
 import ApiResponse from "../utils/ApiResponse.js";
 import jwt from "jsonwebtoken";
 import { deleteOldFromCloudinaryAfterUpdate } from "../utils/deleteFromCloudinary.js";
+import mongoose from "mongoose";
+import fs from "fs";
 
 const generateAccessTokenAndRefreshToken = async (userId) => {
   try {
@@ -222,12 +224,15 @@ const changeCurrentPassword = asyncHandler(async (req, res) => {
 });
 
 const getCurrentUser = asyncHandler(async (req, res) => {
-  return res.status(200).json(200, req.user, "User fetched successfully");
+  return res
+    .status(200)
+    .json(new ApiResponse(200, req.user, "User fetched successfully"));
 });
 
 const updateAccountDetails = asyncHandler(async (req, res) => {
   const { fullName, email } = req.body;
 
+  console.log("request -> ", req.body)
   if (!fullName || !email) {
     throw new ApiError(400, "All fields are required");
   }
@@ -237,13 +242,14 @@ const updateAccountDetails = asyncHandler(async (req, res) => {
     {
       $set: {
         fullName,
-        email,
+        email: email,
       },
     },
     {
       new: true,
     }
   ).select("-password");
+  console.log("detail -> ", user);
 
   return res
     .status(200)
@@ -426,28 +432,23 @@ const getWatchHistory = asyncHandler(async (req, res) => {
               ],
             },
           },
-          {
-            $addFields: {
-              owner: {
-                $first: "owner",
-              },
-            },
-          },
         ],
       },
     },
   ]);
 
+  console.log("user :", user);
   return res
     .status(200)
     .json(
       new ApiResponse(
         200,
-        user[0].watchHistory,
+        user[0]?.watchHistory || [],
         "Watch history fetched successfully"
       )
     );
 });
+//Subaggregation pipeline End
 
 export {
   registerUser,
