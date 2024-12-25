@@ -1,7 +1,7 @@
-import express, { urlencoded } from "express";
+import express from "express";
 import cookieParser from "cookie-parser";
 import cors from "cors";
-
+import { urlencoded } from "express";
 const app = express();
 
 app.use(
@@ -11,8 +11,8 @@ app.use(
   })
 );
 
-app.use(express.json({ limit: "20kb" }));
-app.use(express.urlencoded({ extended: true, limit: "20kb" }));
+app.use(express.json({ limit: "30kb" }));
+app.use(express.urlencoded({ extended: true, limit: "30kb" }));
 app.use(express.static("public"));
 app.use(cookieParser());
 
